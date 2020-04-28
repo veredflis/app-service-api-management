@@ -1,0 +1,17 @@
+name: Build and deploy frontend
+
+on:
+  push:
+    branches:
+      - "master"
+    paths:
+      - "frontend/**/*"
+          
+jobs:
+  build-and-deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out repo
+      uses: actions/checkout@v1
