@@ -16,3 +16,4 @@ module.exports = {
   testURL: "http://localhost/",
   transformIgnorePatterns: ["<rootDir>/node_modules/"]
 };
+
