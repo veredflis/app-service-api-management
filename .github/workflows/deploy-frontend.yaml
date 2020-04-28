@@ -26,8 +26,8 @@ jobs:
         cd frontend
         npm install
         npm run build
-        npm run test
-
+    # npm run test
+    
     - name: 'Deploy to Azure Web App'
       uses: azure/webapps-deploy@v1
       with: 
