@@ -23,7 +23,7 @@ jobs:
 
     - name: Build with Maven
       run: |
-        mvn clean install -P prod -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
+        mvn clean install -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
     
     - name: Deploy to App Service
       uses: azure/webapps-deploy@v2
