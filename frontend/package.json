@@ -47,7 +47,7 @@
   "scripts": {
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "serve": "cross-env BABEL_ENV=dev vue-cli-service serve",
+    "serve": "cross-env BABEL_ENV=dev vue-cli-service serve --port 8088",
     "test": "jest --coverage"
   },
   "version": "0.1.0"

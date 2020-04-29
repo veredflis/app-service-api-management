@@ -2,7 +2,7 @@
   <footer>
     <div class="container">
       <router-link class="logo-font" :to="{ name: 'home', params: {} }">
-        conduit
+        Contoso Corp.
       </router-link>
       <span class="attribution">
         An interactive learning project from
