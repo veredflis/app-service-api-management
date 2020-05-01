@@ -25,11 +25,11 @@ Before deploying to Azure, you will run the app locally to test it and get famil
 1. Fork this repository, clone it locally, and move into the project directory.
 
     ```shell
-    git clone __________
-    cd ______
+    git clone https://github.com/<your-user-name>/app-service-api-management.git
+    cd app-service-api-management
     ```
 
-    > Note: you must create your own fork of this repository so you can later configure the GitHub Actions workflows. Simply cloning this repository will not be sufficient.
+    **Note**: you must create your own fork of this repository so you can later configure the GitHub Actions workflows. Simply cloning this repository will not be sufficient.
 
 1. Run the Spring Boot backend.
 
@@ -44,7 +44,7 @@ Before deploying to Azure, you will run the app locally to test it and get famil
     { "todo": "TODO" }
     ```
 
-1. Move to the `frontend/` directory and start the Vue.js frontend.
+1. Open another terminal, and move to the `frontend/` directory to start the Vue.js frontend.
 
     ```bash
     npm run serve
@@ -54,31 +54,36 @@ Before deploying to Azure, you will run the app locally to test it and get famil
 
 ## Create the App Service resources
 
-Next, run the following Azure CLI commands to create two App Service instances. The first is a Java 8 web app to run the backend, and the next is a PHP web app to host the static Vue.js frontend.
+Run the Azure CLI commands below to create resource group and an App Service Plan. The App Service Plan defines the compute resources available for the web apps to compute.
 
 ```bash
-az webapp create .... java 8
+az group create --name apim-demo --location westus
+az appservice plan create --name apim-demo-plan --resource-group apim-demo --sku B1 --is-linux
+```
 
-az webapp create .... php
+Next, create the Java 8 and PHP 7.3 web apps on the App Service Plan. In the commands below, replace the placeholder names (the text within the carets `<...>`) and run them. The first is a Java 8 web app to run the backend, and the next is a PHP web app to host the static Vue.js frontend.
+
+```bash
+az webapp create --name <your-backend-app-name> --runtime '"JAVA|8-jre8"' --plan apim-demo-plan --resource-group apim-demo
+
+az webapp create --name <your-frontend-app-name> --runtime '"PHP|7.3"' --plan apim-demo-plan --resource-group apim-demo
 ```
 
 ## Set up Continuous Delivery
 
 There are two YAML files under `.github/workflows/`. The first file, [`deploy-backend.yaml`](.github/workflows/deploy-backend.yaml), builds and deploys the Spring Boot backend onto our Java 8 web app. The second file, [`deploy-frontend.yaml`](.github/workflows/deploy-frontend.yaml), builds the Vue.js frontend and deploys it onto the PHP webapp to be served as static assets.
 
-Open the two files and notice that they follow a common pattern of checking out the repository to the build VM, setting up the build tool (either Maven or NPM), building the application, and deploying it to App Service using the [`azure/webapps-deploy` action](). These workflows will only be executed when there is a push to the master branch in the respective directories.
+Open the two files and notice that they follow a common pattern of checking out the repository to the build VM, setting up the build tool (either Maven or NPM), building the application, and deploying it to App Service using the [`azure/webapps-deploy` action](https://github.com/azure/webapps-deploy). These workflows will only be executed when there is a push to the master branch in the respective directories.
 
 ### Prepare the workflow files
 
 To prepare these workflow files, you need to get the deployment credentials for the two webapps created in the previous section then set them as secrets in your GitHub repository.
 
-1. Run the following Azure CLI commands to retrieve the deployment credentials.
+1. Open the [Azure Portal](https://portal.azure.com/) and navigate to each of your webapps. In the **Overview** blade, click **Get publish profile**. This will download an XML document with the deployment credentials for your webapp.
 
-    ```bash
-    az webapp get-deployment-credentials-TODO
-    ```
+    ![Get deployment credentials](img/get-publish-profile.png)
 
-1. Open your fork of this repository on GitHub. Navigate to **Settings** > **Secrets** and click **Add Secret**. Create two secrets: `BACKEND_PUBLISH_PROFILE` and `FRONTEND_PUBLISH_PROFILE`. For each of these, paste the deployment credentials from the last step as the secret values.
+1. Open your fork of this repository on GitHub. Navigate to **Settings** > **Secrets** and click **Add a new secret**. Create two secrets: `BACKEND_PUBLISH_PROFILE` and `FRONTEND_PUBLISH_PROFILE`. For each of these secrets, paste the contents of the XML document into the input box.
 
 1. Open [`deploy-backend.yaml`](.github/workflows/deploy-backend.yaml) and replace `"<your-app-name>"` with your Java 8 web app's name.
 
@@ -92,7 +97,7 @@ Finally, commit and push your changes to the master branch of your repository. Y
 
 ### Connect the apps
 
-Open [`config.js`](frontend/src/common/config.js) and replace line 1 with your Java 8 web apps's URL.
+Next, open [`config.js`](frontend/src/common/config.js) and replace line 1 with your Java 8 web apps's URL. Commit and push your changes to the master branch.
 
 ```js
 export const API_URL = "http://<your-backend-webapp-name>.azurewebsites.net";
